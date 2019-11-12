@@ -11,7 +11,7 @@ import api.Graph;
 import api.TaggedVertex;
 
 /**
- * @author Lorenzo Zenitsky
+ * @author Lorenzo Zenitsky, Gabrielle Johnston
  *
  */
 public class MyGraph<E> implements Graph<E> {
