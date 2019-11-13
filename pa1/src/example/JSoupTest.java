@@ -72,6 +72,7 @@ public class JSoupTest
     */
     System.out.println("Full document body text excluding links:");
     String text = doc.body().text();
+    text = Util.stripPunctuation(text);
     System.out.println(text);
   }
 

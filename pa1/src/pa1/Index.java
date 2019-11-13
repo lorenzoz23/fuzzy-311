@@ -19,7 +19,6 @@ import api.Util;
  */
 public class Index {
 	private List<TaggedVertex<String>> urls;
-	private List<String> words;
 	private Map<String, Map<TaggedVertex<String>, Integer>> invertedIndex;
 
 	/**
@@ -31,19 +30,33 @@ public class Index {
 	 */
 	public Index(List<TaggedVertex<String>> urls) {
 		this.urls = urls;
-		this.words = new ArrayList<String>();
 		this.invertedIndex = new HashMap<String, Map<TaggedVertex<String>, Integer>>();
 		
 		makeIndex();
 	}
 
-	private void parseBody(String body) {
+	private void parseBody(String body, TaggedVertex<String> url) {
 		Scanner scanner = new Scanner(body);
 		while (scanner.hasNext()) {
 			String next = scanner.next();
-			Util.stripPunctuation(next);
+			next = Util.stripPunctuation(next);
 			if (!(Util.isStopWord(next))) {
-				words.add(next);
+				if(invertedIndex.containsKey(next)) {
+					Map<TaggedVertex<String>, Integer> list = invertedIndex.get(next);
+					if(!list.containsKey(url)) {
+						list.put(url, 1);
+					}
+					else {
+						int rank = list.get(url);
+						rank++;
+						list.put(url, rank);
+					}
+				}
+				else {
+					Map<TaggedVertex<String>, Integer> list = new HashMap<TaggedVertex<String>, Integer>();
+					list.put(url, 1);
+					invertedIndex.put(next, list);
+				}
 			}
 		}
 		scanner.close();
@@ -57,12 +70,11 @@ public class Index {
 			String url = tv.getVertexData();
 			try {
 				String body = Jsoup.connect(url).get().body().text();
-				parseBody(body);
+				parseBody(body, tv);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-		
 	}
 
 	/**
