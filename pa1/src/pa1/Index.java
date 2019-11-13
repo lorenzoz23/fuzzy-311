@@ -19,7 +19,7 @@ import api.Util;
  */
 public class Index {
 	private List<TaggedVertex<String>> urls;
-	private Map<String, Map<TaggedVertex<String>, Integer>> invertedIndex;
+	private Map<String, Map<String, Integer>> invertedIndex;
 
 	/**
 	 * Constructs an index from the given list of urls. The tag value for each url
@@ -30,19 +30,19 @@ public class Index {
 	 */
 	public Index(List<TaggedVertex<String>> urls) {
 		this.urls = urls;
-		this.invertedIndex = new HashMap<String, Map<TaggedVertex<String>, Integer>>();
+		this.invertedIndex = new HashMap<String, Map<String, Integer>>();
 		
 		makeIndex();
 	}
 
-	private void parseBody(String body, TaggedVertex<String> url) {
+	private void parseBody(String body, String url) {
 		Scanner scanner = new Scanner(body);
 		while (scanner.hasNext()) {
 			String next = scanner.next();
 			next = Util.stripPunctuation(next);
 			if (!(Util.isStopWord(next))) {
 				if(invertedIndex.containsKey(next)) {
-					Map<TaggedVertex<String>, Integer> list = invertedIndex.get(next);
+					Map<String, Integer> list = invertedIndex.get(next);
 					if(!list.containsKey(url)) {
 						list.put(url, 1);
 					}
@@ -53,7 +53,7 @@ public class Index {
 					}
 				}
 				else {
-					Map<TaggedVertex<String>, Integer> list = new HashMap<TaggedVertex<String>, Integer>();
+					Map<String, Integer> list = new HashMap<String, Integer>();
 					list.put(url, 1);
 					invertedIndex.put(next, list);
 				}
@@ -70,11 +70,21 @@ public class Index {
 			String url = tv.getVertexData();
 			try {
 				String body = Jsoup.connect(url).get().body().text();
-				parseBody(body, tv);
+				parseBody(body, tv.getVertexData());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	private int getRank(String url) {
+		for(int i = 0; i < urls.size(); i++) {
+			if(urls.get(i).getVertexData().equals(url)) {
+				return urls.get(i).getTagValue();
+			}
+		}
+		
+		return -1;
 	}
 
 	/**
@@ -94,13 +104,13 @@ public class Index {
 			return ranked;
 		}
 		else {
-			Map<TaggedVertex<String>, Integer> list = invertedIndex.get(w);
-			for(Map.Entry<TaggedVertex<String>, Integer> entry : list.entrySet()) {
-				TaggedVertex<String> urlSource = entry.getKey();
+			Map<String, Integer> list = invertedIndex.get(w);
+			for(Map.Entry<String, Integer> entry : list.entrySet()) {
+				String urlSource = entry.getKey();
 				int freq = list.get(urlSource);
-				int rank = freq * urlSource.getTagValue();
+				int rank = freq * getRank(urlSource);
 				if(rank > 0) {
-					TaggedVertex<String> tv = new TaggedVertex<String>(urlSource.getVertexData(), rank);
+					TaggedVertex<String> tv = new TaggedVertex<String>(urlSource, rank);
 					ranked.add(tv);
 				}
 			}
