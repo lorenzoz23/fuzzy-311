@@ -31,10 +31,15 @@ public class Index {
 	public Index(List<TaggedVertex<String>> urls) {
 		this.urls = urls;
 		this.invertedIndex = new HashMap<String, Map<String, Integer>>();
-		
-		makeIndex();
 	}
 
+	/**
+	 * Parses the given body that was extracted from the given url
+	 * using the jsoup library. A new word is only added to the inverted
+	 * index if it is both not a stop word and is not already in the index.
+	 * @param body
+	 * @param url
+	 */
 	private void parseBody(String body, String url) {
 		Scanner scanner = new Scanner(body);
 		while (scanner.hasNext()) {
@@ -66,18 +71,34 @@ public class Index {
 	 * Creates the index.
 	 */
 	public void makeIndex() {
+		int requests = 0;
 		for (TaggedVertex<String> tv : urls) {
 			String url = tv.getVertexData();
 			try {
+				if(requests == 50) {
+					try {
+						Thread.sleep(3000);
+						requests = 0;
+					} catch (InterruptedException ignore) {
+						ignore.printStackTrace();
+					}
+				}
 				String body = Jsoup.connect(url).get().body().text();
-				parseBody(body, tv.getVertexData());
+				requests++;
+				parseBody(body, url);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	private int getRank(String url) {
+	/**
+	 * Returns the rank of the specified url stored in the 
+	 * urls list.
+	 * @param url
+	 * @return rank of url, -1 if not found.
+	 */
+	private int getRankFromURLs(String url) {
 		for(int i = 0; i < urls.size(); i++) {
 			if(urls.get(i).getVertexData().equals(url)) {
 				return urls.get(i).getTagValue();
@@ -108,7 +129,7 @@ public class Index {
 			for(Map.Entry<String, Integer> entry : list.entrySet()) {
 				String urlSource = entry.getKey();
 				int freq = list.get(urlSource);
-				int rank = freq * getRank(urlSource);
+				int rank = freq * getRankFromURLs(urlSource);
 				if(rank > 0) {
 					TaggedVertex<String> tv = new TaggedVertex<String>(urlSource, rank);
 					ranked.add(tv);
@@ -120,6 +141,11 @@ public class Index {
 		return ranked;
 	}
 	
+	/**
+	 * Returns an array list of data from given vertex list.
+	 * @param searchList
+	 * @return array of vertex data
+	 */
 	private ArrayList<String> getData(List<TaggedVertex<String>> searchList) {
 		ArrayList<String> arr = new ArrayList<String>();
 		for(TaggedVertex<String> tv : searchList) {
@@ -128,7 +154,13 @@ public class Index {
 		return arr;
 	}
 	
-	private int getRank(String url, List<TaggedVertex<String>> list) {
+	/**
+	 * Returns rank of given url stored in given list.
+	 * @param url
+	 * @param list
+	 * @return rank of give url from list.
+	 */
+	private int getRankFromList(String url, List<TaggedVertex<String>> list) {
 		int tag = 0;
 		for(TaggedVertex<String> tv : list) {
 			if(tv.getVertexData().equals(url)) {
@@ -164,7 +196,7 @@ public class Index {
 			for(TaggedVertex<String> url : search1) {
 				if(search2Urls.contains(url.getVertexData())) {
 					int rank1 = url.getTagValue();
-					int rank2 = getRank(url.getVertexData(), search2);
+					int rank2 = getRankFromList(url.getVertexData(), search2);
 					TaggedVertex<String> tv = new TaggedVertex<String>(url.getVertexData(), rank1 + rank2);
 					rankedAnd.add(tv);
 				}
@@ -175,7 +207,7 @@ public class Index {
 			for(TaggedVertex<String> url : search2) {
 				if(search1Urls.contains(url.getVertexData())) {
 					int rank2 = url.getTagValue();
-					int rank1 = getRank(url.getVertexData(), search1);
+					int rank1 = getRankFromList(url.getVertexData(), search1);
 					TaggedVertex<String> tv = new TaggedVertex<String>(url.getVertexData(), rank2 + rank1);
 					rankedAnd.add(tv);
 				}
@@ -186,6 +218,12 @@ public class Index {
 		return rankedAnd;
 	}
 	
+	/**
+	 * Returns index of given url in list.
+	 * @param url
+	 * @param list
+	 * @return index of given url in list.
+	 */
 	private int getIndex(String url, List<TaggedVertex<String>> list) {
 		for(int i = 0; i < list.size(); i++) {
 			if(list.get(i).getVertexData().equals(url)){
@@ -222,7 +260,7 @@ public class Index {
 			for(TaggedVertex<String> url : search1) {
 				if(search2Urls.contains(url.getVertexData())) {
 					int rank1 = url.getTagValue();
-					int rank2 = getRank(url.getVertexData(), search2);
+					int rank2 = getRankFromList(url.getVertexData(), search2);
 					TaggedVertex<String> tv = new TaggedVertex<String>(url.getVertexData(), rank1 + rank2);
 					rankedOr.remove(getIndex(url.getVertexData(), rankedOr));
 					rankedOr.add(tv);
@@ -235,7 +273,7 @@ public class Index {
 			for(TaggedVertex<String> url : search2) {
 				if(search1Urls.contains(url.getVertexData())) {
 					int rank2 = url.getTagValue();
-					int rank1 = getRank(url.getVertexData(), search1);
+					int rank1 = getRankFromList(url.getVertexData(), search1);
 					TaggedVertex<String> tv = new TaggedVertex<String>(url.getVertexData(), rank2 + rank1);
 					rankedOr.remove(getIndex(url.getVertexData(), rankedOr));
 					rankedOr.add(tv);
