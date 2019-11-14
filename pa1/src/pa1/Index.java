@@ -31,8 +31,6 @@ public class Index {
 	public Index(List<TaggedVertex<String>> urls) {
 		this.urls = urls;
 		this.invertedIndex = new HashMap<String, Map<String, Integer>>();
-		
-		makeIndex();
 	}
 
 	private void parseBody(String body, String url) {
@@ -66,10 +64,20 @@ public class Index {
 	 * Creates the index.
 	 */
 	public void makeIndex() {
+		int requests = 0;
 		for (TaggedVertex<String> tv : urls) {
 			String url = tv.getVertexData();
 			try {
+				if(requests == 50) {
+					try {
+						Thread.sleep(3000);
+						requests = 0;
+					} catch (InterruptedException ignore) {
+						ignore.printStackTrace();
+					}
+				}
 				String body = Jsoup.connect(url).get().body().text();
+				requests++;
 				parseBody(body, tv.getVertexData());
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -1,8 +1,9 @@
 package pa1;
 
 import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -41,6 +42,39 @@ public class Crawler {
 		this.maxPages = maxPages;
 	}
 
+	private int getDepth(MyGraph<String> web, int node) {
+		int root = web.getIndices().get(seedUrl);
+		int level[] = new int[web.getAdjList().size()];
+		boolean marked[] = new boolean[web.getAdjList().size()];
+		
+		Queue<Integer> que = new LinkedList<Integer>();
+		que.add(root);
+		
+		level[root] = 0;
+		marked[root] = true;
+		
+		while(que.size() > 0) {
+			root = que.peek();
+			que.remove();
+			
+			for(int i = 0; i < web.getNeighbors(root).size(); i++) {
+				int n = web.getNeighbors(root).get(i);
+				
+				if(!marked[n]) {
+					que.add(n);
+					level[n] = level[root] + 1;
+					marked[n] = true;
+					
+					if(n == node) {
+						return level[n];
+					}
+				}
+			}
+		}
+		
+		return -1;
+	}
+
 	/**
 	 * Creates a web graph for the portion of the web obtained by a BFS of the web
 	 * starting with the seed url for this object, subject to the restrictions
@@ -48,77 +82,65 @@ public class Crawler {
 	 * 
 	 * @return an instance of Graph representing this portion of the web
 	 */
-	public Graph<String> crawl() { // USE ADDEDGE
+	public Graph<String> crawl() {
 		int requests = 0;
 		int depth = -1;
-		
+		int index = 1;
+
 		ArrayList<String> urls = new ArrayList<String>();
 		urls.add(seedUrl);
-		
 		MyGraph<String> web = new MyGraph<String>(urls);
+
 		Queue<String> queue = new LinkedList<String>();
-		HashMap<String, LinkedList<String>> discovered = new HashMap<String, LinkedList<String>>();
-		
 		queue.add(seedUrl);
-		discovered.put(seedUrl, new LinkedList<String>());
-		
-		while(!queue.isEmpty()) {
-			depth++;
+
+		while (!queue.isEmpty()) {
 			String url = queue.remove();
+			int listIdx = web.getIndex(url);
+			depth = getDepth(web, listIdx);
+			if(depth == -1) {
+				System.out.println("Error: The URL, " + url + "does not appear to be a node in your web graph...");
+				return web;
+			}
+
 			Document urlDoc = null;
-			LinkedList<String> urlAdj = new LinkedList<String>();
-			
+			if (depth > maxDepth) {
+				return web;
+			}
 			try {
-				if(requests == 50) {
+				if (requests == 50) {
 					try {
 						Thread.sleep(3000);
 						requests = 0;
 					} catch (InterruptedException ignore) {
-						
+						ignore.printStackTrace();
 					}
 				}
 				urlDoc = Jsoup.connect(url).get();
 				requests++;
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			} catch (UnsupportedMimeTypeException e) {
+				System.out.println("--unsupported document type, do nothing");
+			} catch (HttpStatusException e) {
+				System.out.println("--invalid link, do nothing");
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			
+
 			Elements links = urlDoc.select("a[href]");
 			for (Element link : links) {
+				if (web.getAdjList().size() >= maxPages) {
+					return web;
+				}
 				String v = link.attr("abs:href");
 
-				// make sure it's a non-bookmark link with a valid MIME type
-				Document tmp = null;
-				if(!Util.ignoreLink(url, v)) {
-					try {
-						if(!discovered.containsKey(v) && (discovered.size() + 1 <= maxPages || depth + 1 <= maxDepth)) {
-							queue.add(v);
-							discovered.put(v, new LinkedList<>());
-							urlAdj.add(v);
-							discovered.put(url, urlAdj);
-						}
-						else if(discovered.containsKey(v) && (discovered.size() + 1 > maxPages || depth + 1 > maxDepth)) {
-							urlAdj.add(v);
-							discovered.put(url, urlAdj);
-						}
-						
-						if(requests == 50) {
-							try {
-								Thread.sleep(3000);
-								requests = 0;
-							} catch (InterruptedException ignore) {
-								
-							}
-						}
-						tmp = Jsoup.connect(v).get();
-						requests++;
-						System.out.println("Document data: " + tmp.data());
-					} catch (UnsupportedMimeTypeException e) {
-						System.out.println("--unsupported document type, do nothing");
-					} catch (HttpStatusException e) {
-						System.out.println("--invalid link, do nothing");
-					} catch (IOException e) {
-						e.printStackTrace();
+				if (!Util.ignoreLink(url, v)) {
+					if (!web.getAdjList().containsKey(v)) {
+						queue.add(v);
+						web.getAdjList().put(v, new LinkedList<>());
+						web.getIndices().put(v, index++);
+						web.addEdge(url, v);
+					} else {
+						web.addEdge(url, v);
 					}
 				} else {
 					System.out.println("--ignore");
@@ -126,8 +148,7 @@ public class Crawler {
 
 			}
 		}
-		
-		web.setGraphMaps(discovered);
+
 		return web;
 	}
 }

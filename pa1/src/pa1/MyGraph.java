@@ -28,6 +28,14 @@ public class MyGraph<E> implements Graph<E> {
 			index++;
 		}
 	}
+	
+	public HashMap<E, LinkedList<E>> getAdjList() {
+		return adjList;
+	}
+	
+	public HashMap<E, Integer> getIndices() {
+		return indices;
+	}
 
 	public void addEdge(E source, E destination) {
 		if(source.equals(destination)) {
@@ -95,6 +103,7 @@ public class MyGraph<E> implements Graph<E> {
 		}
 	}
 	
+	/**
 	public void setGraphMaps(HashMap<E, LinkedList<E>> newAdjList) {
 		adjList = newAdjList;
 		index = 0;
@@ -105,6 +114,7 @@ public class MyGraph<E> implements Graph<E> {
 			index++;
 		}
 	}
+	*/
 
 	@Override
 	public ArrayList<E> vertexData() {
@@ -176,6 +186,10 @@ public class MyGraph<E> implements Graph<E> {
 		}
 		
 		return inList;
+	}
+	
+	public int getIndex(E node) {
+		return indices.get(node);
 	}
 
 	

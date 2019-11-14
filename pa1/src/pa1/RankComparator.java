@@ -12,5 +12,4 @@ public class RankComparator implements Comparator<TaggedVertex<String>> {
 		Integer tag2 = o2.getTagValue();
 		return tag2.compareTo(tag1);
 	}
-
 }
