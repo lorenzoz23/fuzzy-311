@@ -20,7 +20,7 @@ import api.Util;
  * Implementation of a basic web crawler that creates a graph of some portion of
  * the world wide web.
  *
- * @author Lorenzo Zenitsky
+ * @author Lorenzo Zenitsky, Gabrielle Johnston
  */
 public class Crawler {
 	private String seedUrl;

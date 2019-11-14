@@ -32,7 +32,7 @@ public class JSoupTest
       
     System.out.println("Fetching " + url);
     Document doc = Jsoup.connect(url).get();    
-    
+    /*
     // get the links from the document text
     Elements links = doc.select("a[href]");
     for (Element link : links)
@@ -69,9 +69,10 @@ public class JSoupTest
 
     System.out.println();
     
-    
+    */
     System.out.println("Full document body text excluding links:");
     String text = doc.body().text();
+    text = Util.stripPunctuation(text);
     System.out.println(text);
   }
 
