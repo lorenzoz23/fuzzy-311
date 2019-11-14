@@ -102,19 +102,6 @@ public class MyGraph<E> implements Graph<E> {
 			}
 		}
 	}
-	
-	/**
-	public void setGraphMaps(HashMap<E, LinkedList<E>> newAdjList) {
-		adjList = newAdjList;
-		index = 0;
-		
-		for(Map.Entry<E, LinkedList<E>> entry : adjList.entrySet()) {
-			E vertex = entry.getKey();
-			indices.put(vertex, index);
-			index++;
-		}
-	}
-	*/
 
 	@Override
 	public ArrayList<E> vertexData() {
@@ -135,7 +122,11 @@ public class MyGraph<E> implements Graph<E> {
 			TaggedVertex<E> tv = new TaggedVertex<E>(key, getIncoming(indices.get(key)).size());
 			taggedArr.add(tv);
 		}
-
+		
+		TaggedVertex<E> seedUrl = new TaggedVertex<E>(taggedArr.get(0).getVertexData(), taggedArr.get(0).getTagValue()+1);
+		taggedArr.add(0, seedUrl);
+		taggedArr.remove(1);
+		
 		return taggedArr;
 	}
 
@@ -216,8 +207,11 @@ public class MyGraph<E> implements Graph<E> {
 		graph.addEdge("G", "E");
 		graph.addEdge("A", "G");
 
-		//graph.DFS();
 		graph.BFS("A");
+		ArrayList<TaggedVertex<String>> list = graph.vertexDataWithIncomingCounts();
+		for(int i = 0; i < list.size(); i++) {
+			System.out.println(list.get(i).getTagValue());
+		}
 	}
 	 
 

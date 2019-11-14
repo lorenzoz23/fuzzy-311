@@ -3,7 +3,6 @@ package pa1;
 import java.io.IOException;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -46,32 +45,32 @@ public class Crawler {
 		int root = web.getIndices().get(seedUrl);
 		int level[] = new int[web.getAdjList().size()];
 		boolean marked[] = new boolean[web.getAdjList().size()];
-		
+
 		Queue<Integer> que = new LinkedList<Integer>();
 		que.add(root);
-		
+
 		level[root] = 0;
 		marked[root] = true;
-		
-		while(que.size() > 0) {
+
+		while (que.size() > 0) {
 			root = que.peek();
 			que.remove();
-			
-			for(int i = 0; i < web.getNeighbors(root).size(); i++) {
+
+			for (int i = 0; i < web.getNeighbors(root).size(); i++) {
 				int n = web.getNeighbors(root).get(i);
-				
-				if(!marked[n]) {
+
+				if (!marked[n]) {
 					que.add(n);
 					level[n] = level[root] + 1;
 					marked[n] = true;
-					
-					if(n == node) {
+
+					if (n == node) {
 						return level[n];
 					}
 				}
 			}
 		}
-		
+
 		return -1;
 	}
 
@@ -98,7 +97,7 @@ public class Crawler {
 			String url = queue.remove();
 			int listIdx = web.getIndex(url);
 			depth = getDepth(web, listIdx);
-			if(depth == -1) {
+			if (depth == -1) {
 				System.out.println("Error: The URL, " + url + "does not appear to be a node in your web graph...");
 				return web;
 			}
@@ -107,6 +106,7 @@ public class Crawler {
 			if (depth > maxDepth) {
 				return web;
 			}
+
 			try {
 				if (requests == 50) {
 					try {
@@ -131,8 +131,8 @@ public class Crawler {
 				if (web.getAdjList().size() >= maxPages) {
 					return web;
 				}
+				
 				String v = link.attr("abs:href");
-
 				if (!Util.ignoreLink(url, v)) {
 					if (!web.getAdjList().containsKey(v)) {
 						queue.add(v);
@@ -150,5 +150,17 @@ public class Crawler {
 		}
 
 		return web;
+	}
+
+	public static void main(String[] args) {
+		Crawler test = new Crawler("http://web.cs.iastate.edu/~smkautz/cs311f19/temp/a.html", 6, 18);
+		Graph<String> graph = test.crawl();
+
+		ArrayList<String> vertexData = graph.vertexData();
+
+		for (int i = 0; i < vertexData.size(); i++) {
+			System.out.println(vertexData.get(i));
+		}
+
 	}
 }
