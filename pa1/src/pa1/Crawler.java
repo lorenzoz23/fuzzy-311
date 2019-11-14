@@ -63,10 +63,14 @@ public class Crawler {
 		discovered.put(seedUrl, new LinkedList<String>());
 		
 		while(!queue.isEmpty()) {
+			System.out.println(depth);
 			depth++;
 			String url = queue.remove();
 			Document urlDoc = null;
 			LinkedList<String> urlAdj = new LinkedList<String>();
+			if(depth > maxDepth) {
+				return web;
+			}
 			
 			try {
 				if(requests == 50) {
@@ -85,21 +89,27 @@ public class Crawler {
 			
 			Elements links = urlDoc.select("a[href]");
 			for (Element link : links) {
+				if(discovered.size() >= maxPages) {
+					return web;
+				}
 				String v = link.attr("abs:href");
 
 				// make sure it's a non-bookmark link with a valid MIME type
 				Document tmp = null;
 				if(!Util.ignoreLink(url, v)) {
 					try {
-						if(!discovered.containsKey(v) && (discovered.size() + 1 <= maxPages || depth + 1 <= maxDepth)) {
+						
+						if(!discovered.containsKey(v)) {
 							queue.add(v);
 							discovered.put(v, new LinkedList<>());
+							System.out.println("Link: "+v+" is at depth: "+depth);
 							urlAdj.add(v);
 							discovered.put(url, urlAdj);
 						}
-						else if(discovered.containsKey(v) && (discovered.size() + 1 > maxPages || depth + 1 > maxDepth)) {
+						else {
 							urlAdj.add(v);
 							discovered.put(url, urlAdj);
+							System.out.println("Link: "+v+" is at depth: "+depth);
 						}
 						
 						if(requests == 50) {
@@ -112,7 +122,7 @@ public class Crawler {
 						}
 						tmp = Jsoup.connect(v).get();
 						requests++;
-						System.out.println("Document data: " + tmp.data());
+						//System.out.println("Document data: " + tmp.data());
 					} catch (UnsupportedMimeTypeException e) {
 						System.out.println("--unsupported document type, do nothing");
 					} catch (HttpStatusException e) {
@@ -129,5 +139,17 @@ public class Crawler {
 		
 		web.setGraphMaps(discovered);
 		return web;
+	}
+	
+	public static void main(String[] args) {
+		Crawler test = new Crawler("http://web.cs.iastate.edu/~smkautz/cs311f19/temp/a.html", 6, 18);
+		Graph<String> graph = test.crawl();
+		
+		ArrayList<String> vertexData = graph.vertexData();
+		
+		for(int i=0; i<vertexData.size(); i++) {
+			System.out.println(vertexData.get(i));
+		}
+
 	}
 }

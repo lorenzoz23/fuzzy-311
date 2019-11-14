@@ -125,7 +125,11 @@ public class MyGraph<E> implements Graph<E> {
 			TaggedVertex<E> tv = new TaggedVertex<E>(key, getIncoming(indices.get(key)).size());
 			taggedArr.add(tv);
 		}
-
+		
+		TaggedVertex<E> seedUrl = new TaggedVertex<E>(taggedArr.get(0).getVertexData(), taggedArr.get(0).getTagValue()+1);
+		taggedArr.add(0, seedUrl);
+		taggedArr.remove(1);
+		
 		return taggedArr;
 	}
 
@@ -204,6 +208,10 @@ public class MyGraph<E> implements Graph<E> {
 
 		//graph.DFS();
 		graph.BFS("A");
+		ArrayList<TaggedVertex<String>> list = graph.vertexDataWithIncomingCounts();
+		for(int i=0; i<list.size(); i++) {
+			System.out.println(list.get(i).getTagValue());
+		}
 	}
 	 
 
