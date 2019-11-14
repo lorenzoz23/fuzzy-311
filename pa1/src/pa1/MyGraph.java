@@ -11,8 +11,9 @@ import api.Graph;
 import api.TaggedVertex;
 
 /**
+ * Simple Graph class implementing the given Graph interface.
+ * 
  * @author Lorenzo Zenitsky, Gabrielle Johnston
- *
  */
 public class MyGraph<E> implements Graph<E> {
 	private HashMap<E, LinkedList<E>> adjList = new HashMap<E, LinkedList<E>>();
@@ -29,14 +30,30 @@ public class MyGraph<E> implements Graph<E> {
 		}
 	}
 	
+	/**
+	 * Returns this graph's adjacency list
+	 * @return adjacency list of graph class
+	 */
 	public HashMap<E, LinkedList<E>> getAdjList() {
 		return adjList;
 	}
 	
+	/**
+	 * Returns the indices hash map
+	 * @return indices hash map
+	 */
 	public HashMap<E, Integer> getIndices() {
 		return indices;
 	}
 
+	/**
+	 * Adds an edge between source and destination.
+	 * Also performs various error checking to make sure
+	 * the resulting edge is valid and will produce an 
+	 * appropriate graph.
+	 * @param source
+	 * @param destination
+	 */
 	public void addEdge(E source, E destination) {
 		if(source.equals(destination)) {
 			System.out.println("Error: The source and destination vertices can not have the same data!");
@@ -55,6 +72,10 @@ public class MyGraph<E> implements Graph<E> {
 		adjList.put(source, list);
 	}
 
+	/**
+	 * Basic implementation of the DFS algorithm that
+	 * prints out its traversal of this graph class.
+	 */
 	public void DFS() {
 		int vertices = adjList.size();
 		boolean[] visited = new boolean[vertices];
@@ -67,6 +88,12 @@ public class MyGraph<E> implements Graph<E> {
 		}
 	}
 
+	/**
+	 * Helper function that performs the 
+	 * recursive aspect of the DFS algorithm.
+	 * @param source
+	 * @param visited
+	 */
 	public void DFSUtil(E source, boolean[] visited) {
 		visited[indices.get(source)] = true;
 
@@ -79,6 +106,10 @@ public class MyGraph<E> implements Graph<E> {
 		}
 	}
 
+	/**
+	 * Simple BFS implementation that prints out tree order.
+	 * @param source
+	 */
 	public void BFS(E source) {
 		Queue<E> queue = new LinkedList<E>();
 		
@@ -103,6 +134,12 @@ public class MyGraph<E> implements Graph<E> {
 		}
 	}
 
+	/**
+	   * Returns an ArrayList of the actual objects constituting the vertices
+	   * of this graph.
+	   * @return
+	   *   ArrayList of objects in the graph
+	   */
 	@Override
 	public ArrayList<E> vertexData() {
 		ArrayList<E> keyArr = new ArrayList<E>();
@@ -114,6 +151,12 @@ public class MyGraph<E> implements Graph<E> {
 		return keyArr;
 	}
 
+	/**
+	   * Returns an ArrayList that is identical to that returned by vertexData(), except
+	   * that each vertex is associated with its incoming edge count.
+	   * @return
+	   *   ArrayList of objects in the graph, each associated with its incoming edge count
+	   */
 	@Override
 	public ArrayList<TaggedVertex<E>> vertexDataWithIncomingCounts() {
 		ArrayList<TaggedVertex<E>> taggedArr = new ArrayList<TaggedVertex<E>>();
@@ -130,6 +173,12 @@ public class MyGraph<E> implements Graph<E> {
 		return taggedArr;
 	}
 
+	/**
+	 * Returns the key that matches the given
+	 * integer value.
+	 * @param index
+	 * @return key that matches given index value.
+	 */
 	private E getKeyFromValue(int index) {
 		for(E key : indices.keySet()) {
 			if(indices.get(key).equals(index)) {
@@ -140,6 +189,16 @@ public class MyGraph<E> implements Graph<E> {
 		return null;
 	}
 
+	/**
+	   * Returns a list of outgoing edges, that is, a list of indices for neighbors
+	   * of the vertex with given index.
+	   * This method may throw ArrayIndexOutOfBoundsException if the index 
+	   * is invalid.
+	   * @param index
+	   *   index of the given vertex according to vertexData()
+	   * @return
+	   *   list of outgoing edges
+	   */
 	@Override
 	public List<Integer> getNeighbors(int index) {
 		if(index < 0 || index >= indices.size()) {
@@ -158,6 +217,16 @@ public class MyGraph<E> implements Graph<E> {
 		return nList;
 	}
 
+	/**
+	   * Returns a list of incoming edges, that is, a list of indices for vertices 
+	   * having the given vertex as a neighbor.
+	   * This method may throw ArrayIndexOutOfBoundsException if the index 
+	   * is invalid. 
+	   * @param index
+	   *   index of the given vertex according to vertexData()
+	   * @return
+	   *   list of incoming edges
+	   */
 	@Override
 	public List<Integer> getIncoming(int index) {
 		if(index < 0 || index >= indices.size()) {
@@ -179,6 +248,12 @@ public class MyGraph<E> implements Graph<E> {
 		return inList;
 	}
 	
+	/**
+	 * Returns the index of the given node in the
+	 * indices hash map.
+	 * @param node
+	 * @return index of node
+	 */
 	public int getIndex(E node) {
 		return indices.get(node);
 	}

@@ -41,6 +41,12 @@ public class Crawler {
 		this.maxPages = maxPages;
 	}
 
+	/**
+	 * Returns the depth of the given node within the given web graph using BFS.
+	 * @param web
+	 * @param node
+	 * @return the depth of the given node in the given graph.
+	 */
 	private int getDepth(MyGraph<String> web, int node) {
 		int root = web.getIndices().get(seedUrl);
 		int level[] = new int[web.getAdjList().size()];

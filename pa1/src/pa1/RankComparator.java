@@ -4,6 +4,13 @@ import java.util.Comparator;
 
 import api.TaggedVertex;
 
+/**
+ * Implementation of a TaggedVertex comparator that orders
+ * a collection of TaggedVertex objects in descending order.
+ * 
+ * @author Lorenzo Zenitsky, Gabrielle Johnston
+ */
+
 public class RankComparator implements Comparator<TaggedVertex<String>> {
 
 	@Override
