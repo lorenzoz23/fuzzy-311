@@ -19,10 +19,14 @@ public class MyGraph<E> implements Graph<E> {
 	private HashMap<E, LinkedList<E>> adjList = new HashMap<E, LinkedList<E>>();
 	private HashMap<E, Integer> indices = new HashMap<>();
 	private int index = 0;
+	private E seed;
 
 	public MyGraph(ArrayList<E> vertices) {
 		for(int i = 0; i < vertices.size(); i++) {
 			E vertex = vertices.get(i);
+			if(i == 0) {
+				seed = vertex;
+			}
 			LinkedList<E> list = new LinkedList<>();
 			adjList.put(vertex, list);
 			indices.put(vertex, index);
@@ -160,15 +164,17 @@ public class MyGraph<E> implements Graph<E> {
 	@Override
 	public ArrayList<TaggedVertex<E>> vertexDataWithIncomingCounts() {
 		ArrayList<TaggedVertex<E>> taggedArr = new ArrayList<TaggedVertex<E>>();
-
+		TaggedVertex<E> tv = null;
+		
 		for(E key : adjList.keySet()) {
-			TaggedVertex<E> tv = new TaggedVertex<E>(key, getIncoming(indices.get(key)).size());
+			if(key.equals(seed)) {
+				tv = new TaggedVertex<E>(key, getIncoming(indices.get(key)).size() + 1);
+			}
+			else {
+				tv = new TaggedVertex<E>(key, getIncoming(indices.get(key)).size());	
+			}
 			taggedArr.add(tv);
 		}
-		
-		TaggedVertex<E> seedUrl = new TaggedVertex<E>(taggedArr.get(0).getVertexData(), taggedArr.get(0).getTagValue()+1);
-		taggedArr.add(0, seedUrl);
-		taggedArr.remove(1);
 		
 		return taggedArr;
 	}
@@ -257,37 +263,5 @@ public class MyGraph<E> implements Graph<E> {
 	public int getIndex(E node) {
 		return indices.get(node);
 	}
-
 	
-	public static void main(String[] args) {
-		ArrayList<String> vertices = new ArrayList<>();
-		vertices.add("A");
-		vertices.add("B");
-		vertices.add("C");
-		vertices.add("D");
-		vertices.add("E");
-		vertices.add("F");
-		vertices.add("G");
-
-		MyGraph<String> graph = new MyGraph<String>(vertices);
-
-		graph.addEdge("A", "B");
-		graph.addEdge("A", "C");
-		graph.addEdge("B", "D");
-		graph.addEdge("B", "E");
-		graph.addEdge("C", "D");
-		graph.addEdge("D", "E");
-		graph.addEdge("E", "F");
-		graph.addEdge("F", "C");
-		graph.addEdge("G", "E");
-		graph.addEdge("A", "G");
-
-		graph.BFS("A");
-		ArrayList<TaggedVertex<String>> list = graph.vertexDataWithIncomingCounts();
-		for(int i = 0; i < list.size(); i++) {
-			System.out.println(list.get(i).getTagValue());
-		}
-	}
-	 
-
 }

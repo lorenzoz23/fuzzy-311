@@ -143,7 +143,6 @@ public class Crawler {
 				String v = link.attr("abs:href");
 				if (!Util.ignoreLink(url, v)) {
 					if (!(web.getAdjList().containsKey(v))) {
-						System.out.println(v);
 						queue.add(v);
 						web.getAdjList().put(v, new LinkedList<>());
 						web.getIndices().put(v, index);
@@ -160,35 +159,5 @@ public class Crawler {
 		}
 
 		return web;
-	}
-
-	public static void main(String[] args) {
-		String root = "http://web.cs.iastate.edu/~smkautz/cs311f19/temp/a.html";
-		Crawler test = new Crawler("http://web.cs.iastate.edu/~smkautz/cs311f19/temp/a.html", 100, 100);
-		MyGraph<String> graph = null;
-		ArrayList<Integer> incoming = new ArrayList<Integer>();
-		ArrayList<Integer> neighbors = new ArrayList<Integer>();
-		
-		int rootIndex = 0;
-		for(int i = 0; i < 3; i++) {
-			graph = (MyGraph<String>) test.crawl();
-			
-			rootIndex = graph.getIndices().get(root);
-			System.out.println("root index: " + rootIndex);
-			incoming = (ArrayList<Integer>) graph.getIncoming(0);
-			neighbors = (ArrayList<Integer>) graph.getNeighbors(0);
-
-			System.out.println("incoming: ");
-			for (int j = 0; j < incoming.size(); j++) {
-				System.out.println(graph.getKeyFromValue(incoming.get(j)));
-			}
-			
-			System.out.println("outgoing: ");
-			for (int k = 0; k < neighbors.size(); k++) {
-				System.out.println(graph.getKeyFromValue(neighbors.get(k)));
-			}
-		}
-		
-		System.out.println("Link".equals("link"));
 	}
 }
