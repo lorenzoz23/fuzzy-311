@@ -2,9 +2,9 @@ package pa1;
 
 import java.io.IOException;
 
+
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 import org.jsoup.HttpStatusException;
@@ -160,21 +160,5 @@ public class Crawler {
 		}
 
 		return web;
-	}
-	
-	public static void main(String[] args) {
-		Crawler crawl = new Crawler("http://web.cs.iastate.edu/~smkautz/cs311f19/temp/a.html", 100, 100);
-		
-		MyGraph<String> test = (MyGraph<String>) crawl.crawl();
-		
-		int rootIndex = test.getIndices().get("http://web.cs.iastate.edu/~smkautz/cs311f19/temp/a.html");
-		System.out.println("Index of A in adjacency list: " + rootIndex);
-		
-		List<Integer> incoming = test.getIncoming(rootIndex);
-		
-		System.out.println("incoming for A: ");
-		for(int i = 0; i < incoming.size(); i++) {
-			System.out.println("URL: " + test.getKeyFromValue(incoming.get(i)) + ", index in adjacency list: " + incoming.get(i));
-		}
 	}
 }
