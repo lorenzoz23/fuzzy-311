@@ -147,9 +147,11 @@ public class MyGraph<E> implements Graph<E> {
 	@Override
 	public ArrayList<E> vertexData() {
 		ArrayList<E> keyArr = new ArrayList<E>();
-
-		for(E key : adjList.keySet()) {
-			keyArr.add(key);
+		E v = null;
+		
+		for(int i = 0; i < adjList.size(); i++) {
+			v = getKeyFromValue(i);
+			keyArr.add(v);
 		}
 
 		return keyArr;
@@ -165,15 +167,18 @@ public class MyGraph<E> implements Graph<E> {
 	public ArrayList<TaggedVertex<E>> vertexDataWithIncomingCounts() {
 		ArrayList<TaggedVertex<E>> taggedArr = new ArrayList<TaggedVertex<E>>();
 		TaggedVertex<E> tv = null;
+		E v = null;
 		
-		for(E key : adjList.keySet()) {
-			if(key.equals(seed)) {
-				tv = new TaggedVertex<E>(key, getIncoming(indices.get(key)).size() + 1);
+		for(int i = 0; i < adjList.size(); i++) {
+			v = getKeyFromValue(i);
+			if(v.equals(seed)) {
+				tv = new TaggedVertex<E>(v, getIncoming(indices.get(v)).size() + 1);
 			}
 			else {
-				tv = new TaggedVertex<E>(key, getIncoming(indices.get(key)).size());	
+				tv = new TaggedVertex<E>(v, getIncoming(indices.get(v)).size());	
 			}
 			taggedArr.add(tv);
+			
 		}
 		
 		return taggedArr;
@@ -243,12 +248,9 @@ public class MyGraph<E> implements Graph<E> {
 		List<Integer> inList = new ArrayList<Integer>();
 		
 		for(Map.Entry<E, LinkedList<E>> entry : adjList.entrySet()) {
-			for(int i = 0; i < entry.getValue().size(); i++) {
-				if(entry.getValue().get(i).equals(v)) {
-					inList.add(indices.get(entry.getKey()));
-				}
+			if(entry.getValue().contains(v)) {
+				inList.add(indices.get(entry.getKey()));
 			}
-			
 		}
 		
 		return inList;
