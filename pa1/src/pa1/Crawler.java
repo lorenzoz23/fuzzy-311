@@ -49,6 +49,9 @@ public class Crawler {
 	 */
 	private int getDepth(MyGraph<String> web, int node) {
 		int root = web.getIndices().get(seedUrl);
+		if(node == root) {
+			return 0;
+		}
 		int level[] = new int[web.getAdjList().size()];
 		boolean marked[] = new boolean[web.getAdjList().size()];
 
@@ -104,15 +107,14 @@ public class Crawler {
 			int listIdx = web.getIndex(url);
 			depth = getDepth(web, listIdx);
 			if (depth == -1) {
-				System.out.println("Error: The URL, " + url + "does not appear to be a node in your web graph...");
+				System.out.println("Error: The URL, " + url + " does not appear to be a node in your web graph...");
 				return web;
 			}
-
-			Document urlDoc = null;
 			if (depth > maxDepth) {
 				return web;
 			}
 
+			Document urlDoc = null;
 			try {
 				if (requests == 50) {
 					try {
@@ -140,11 +142,13 @@ public class Crawler {
 				
 				String v = link.attr("abs:href");
 				if (!Util.ignoreLink(url, v)) {
-					if (!web.getAdjList().containsKey(v)) {
+					if (!(web.getAdjList().containsKey(v))) {
+						System.out.println(v);
 						queue.add(v);
 						web.getAdjList().put(v, new LinkedList<>());
-						web.getIndices().put(v, index++);
+						web.getIndices().put(v, index);
 						web.addEdge(url, v);
+						index++;
 					} else {
 						web.addEdge(url, v);
 					}
@@ -159,14 +163,32 @@ public class Crawler {
 	}
 
 	public static void main(String[] args) {
-		Crawler test = new Crawler("http://web.cs.iastate.edu/~smkautz/cs311f19/temp/a.html", 6, 18);
-		Graph<String> graph = test.crawl();
+		String root = "http://web.cs.iastate.edu/~smkautz/cs311f19/temp/a.html";
+		Crawler test = new Crawler("http://web.cs.iastate.edu/~smkautz/cs311f19/temp/a.html", 100, 100);
+		MyGraph<String> graph = null;
+		ArrayList<Integer> incoming = new ArrayList<Integer>();
+		ArrayList<Integer> neighbors = new ArrayList<Integer>();
+		
+		int rootIndex = 0;
+		for(int i = 0; i < 3; i++) {
+			graph = (MyGraph<String>) test.crawl();
+			
+			rootIndex = graph.getIndices().get(root);
+			System.out.println("root index: " + rootIndex);
+			incoming = (ArrayList<Integer>) graph.getIncoming(0);
+			neighbors = (ArrayList<Integer>) graph.getNeighbors(0);
 
-		ArrayList<String> vertexData = graph.vertexData();
-
-		for (int i = 0; i < vertexData.size(); i++) {
-			System.out.println(vertexData.get(i));
+			System.out.println("incoming: ");
+			for (int j = 0; j < incoming.size(); j++) {
+				System.out.println(graph.getKeyFromValue(incoming.get(j)));
+			}
+			
+			System.out.println("outgoing: ");
+			for (int k = 0; k < neighbors.size(); k++) {
+				System.out.println(graph.getKeyFromValue(neighbors.get(k)));
+			}
 		}
-
+		
+		System.out.println("Link".equals("link"));
 	}
 }
