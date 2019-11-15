@@ -214,6 +214,7 @@ public class Index {
 			}
 		}
 		
+		//check if a sort needs to be done if ranked array is built from two already sorted lits
 		rankedAnd.sort(new RankComparator());
 		return rankedAnd;
 	}
@@ -251,18 +252,23 @@ public class Index {
 	public List<TaggedVertex<String>> searchWithOr(String w1, String w2) {
 		List<TaggedVertex<String>> rankedOr = new ArrayList<TaggedVertex<String>>();
 		
-		List<TaggedVertex<String>> search1 = search(w1);
-		List<TaggedVertex<String>> search2 = search(w2);
+		List<TaggedVertex<String>> search1 = search(w1); // all pages containing vanilla - total: 3
+		List<TaggedVertex<String>> search2 = search(w2); // all pages containing chicken - total: 5
 		
 		if(search1.size() <= search2.size()) {
 			rankedOr.addAll(0, search2);
-			ArrayList<String> search2Urls = getData(search2);
+			ArrayList<String> search2Urls = getData(search2); // all page urls in search2
 			for(TaggedVertex<String> url : search1) {
 				if(search2Urls.contains(url.getVertexData())) {
 					int rank1 = url.getTagValue();
 					int rank2 = getRankFromList(url.getVertexData(), search2);
 					TaggedVertex<String> tv = new TaggedVertex<String>(url.getVertexData(), rank1 + rank2);
 					rankedOr.remove(getIndex(url.getVertexData(), rankedOr));
+					rankedOr.add(tv);
+				}
+				else {
+					int rank = url.getTagValue();
+					TaggedVertex<String> tv = new TaggedVertex<String>(url.getVertexData(), rank);
 					rankedOr.add(tv);
 				}
 			}
@@ -276,6 +282,11 @@ public class Index {
 					int rank1 = getRankFromList(url.getVertexData(), search1);
 					TaggedVertex<String> tv = new TaggedVertex<String>(url.getVertexData(), rank2 + rank1);
 					rankedOr.remove(getIndex(url.getVertexData(), rankedOr));
+					rankedOr.add(tv);
+				}
+				else {
+					int rank = url.getTagValue();
+					TaggedVertex<String> tv = new TaggedVertex<String>(url.getVertexData(), rank);
 					rankedOr.add(tv);
 				}
 			}

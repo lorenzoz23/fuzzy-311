@@ -179,7 +179,7 @@ public class MyGraph<E> implements Graph<E> {
 	 * @param index
 	 * @return key that matches given index value.
 	 */
-	private E getKeyFromValue(int index) {
+	public E getKeyFromValue(int index) {
 		for(E key : indices.keySet()) {
 			if(indices.get(key).equals(index)) {
 				return key;
